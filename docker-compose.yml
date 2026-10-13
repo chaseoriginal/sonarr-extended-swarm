@@ -1,0 +1,36 @@
+---
+services:
+  sonarr-extend:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr-extended-swarm
+    environment:
+      - PUID=1000
+      - PGID=33
+      - TZ=America/Chicago
+      - enableAutoConfig=fa;se
+      - enableRecyclarr=false
+      - enableQueueCleaner=false
+      - enableYoutubeSeriesDownloader=false
+      - enableExtras=true
+      - extrasType=all
+      - extrasLanguages=en-US
+      - extrasOfficialOnly=false
+      - plexUrl=https://10.77.110.26:32400
+      - plexToken=CazJ6rMc9DR8vzbeUT7m
+    volumes:
+      - /var/lib/docker/volumes/sonarr-extended-swarm/config:/config
+      - /var/lib/docker/volumes/sonarr-extended-swarm/custom-services.d:/custom-services.d
+      - /var/lib/docker/volumes/sonarr-extended-swarm/custom-cont-init.d:/custom-cont-init.d
+      - /media/Multimedia/TV Series:/tv
+      - /media/Multimedia/Incoming/:/downloads
+    ports:
+      - target: 8989
+        published: 8989
+        protocol: tcp
+        mode: host        
+    deploy:
+      placement:
+        constraints:
+          - node.labels.deployment.target.sonarr == true
+      restart_policy:
+        condition: any
