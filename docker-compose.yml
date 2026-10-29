@@ -1,36 +1,60 @@
----
 services:
   sonarr-extend:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr-extended-swarm
     environment:
-      - PUID=1000
-      - PGID=33
-      - TZ=America/Chicago
-      - enableAutoConfig=fa;se
-      - enableRecyclarr=false
-      - enableQueueCleaner=false
-      - enableYoutubeSeriesDownloader=false
-      - enableExtras=true
-      - extrasType=all
-      - extrasLanguages=en-US
-      - extrasOfficialOnly=false
-      - plexUrl=https://10.77.110.26:32400
-      - plexToken=CazJ6rMc9DR8vzbeUT7m
+    - PUID=1000
+    - PGID=33
+    - TZ=America/Chicago
+    - enableAutoConfig=true
+    - enableRecyclarr=true
+    - enableQueueCleaner=true
+    - enableYoutubeSeriesDownloader=true
+    - enableExtras=true
+    - extrasType=all
+    - extrasLanguages=en-US
+    - extrasOfficialOnly=false
+    - plexUrl=https://10.77.110.26:32400
+    - plexToken=${plexToken}
     volumes:
-      - /var/lib/docker/volumes/sonarr-extended-swarm/config:/config
-      - /var/lib/docker/volumes/sonarr-extended-swarm/custom-services.d:/custom-services.d
-      - /var/lib/docker/volumes/sonarr-extended-swarm/custom-cont-init.d:/custom-cont-init.d
-      - /media/Multimedia/TV Series:/tv
-      - /media/Multimedia/Incoming/:/downloads
+    - sonarr-extended-swarm_sonarr.config:/config
+    - sonarr-extended-swarm_sonarr.custom-services:/custom-services.d
+    - sonarr-extended-swarm_sonarr.custom-cont-init.d:/custom-cont-init.d
+    - /media/Multimedia/TV Series:/tv
+    - /media/Multimedia/Incoming/:/downloads
     ports:
-      - target: 8989
-        published: 8989
-        protocol: tcp
-        mode: host        
+    - target: 8989
+      published: 8989
+      protocol: tcp
+      mode: host
     deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 1024M
+        reservations:
+          cpus: '0.50'
+          memory: 512M
       placement:
         constraints:
-          - node.labels.deployment.target.sonarr == true
+        - node.labels.deployment.target.sonarr == true
       restart_policy:
-        condition: any
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: continue
+        monitor: 60s
+        max_failure_ratio: 0.3
+volumes:
+  sonarr-extended-swarm_sonarr.config:
+    name: sonarr-extended-swarm_sonarr.config
+  sonarr-extended-swarm_sonarr.custom-services:
+    name: sonarr-extended-swarm_sonarr.custom-services
+  sonarr-extended-swarm_sonarr.custom-cont-init.d:
+    name: sonarr-extended-swarm_sonarr.custom-cont-init.d
