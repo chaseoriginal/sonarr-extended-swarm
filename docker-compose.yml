@@ -39,6 +39,7 @@ services:
           memory: 512M
       placement:
         constraints:
+        - node.hostname==ore-dock-110-6
         - node.labels.deployment.target.sonarr == true
       restart_policy:
         condition: on-failure
