@@ -15,7 +15,7 @@ services:
     - extrasLanguages=en-US
     - extrasOfficialOnly=false
     - plexUrl=https://10.77.110.26:32400
-    - plexToken=${plexToken}
+    - plexToken=CazJ6rMc9DR8vzbeUT7m
     volumes:
     - sonarr-extended-swarm_sonarr.config:/config
     - sonarr-extended-swarm_sonarr.custom-services:/custom-services.d
@@ -39,6 +39,7 @@ services:
           memory: 512M
       placement:
         constraints:
+        - node.hostname==ore-dock-110-6
         - node.labels.deployment.target.sonarr == true
       restart_policy:
         condition: on-failure
